@@ -13,6 +13,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <memory>
 
 using namespace std;
 using namespace boost;
@@ -642,7 +643,7 @@ bool CTxMemPool::accept(CTxDB& txdb, CTransaction &tx, bool fCheckInputs,
         // Don't accept it if it can't get into a block
         int64 txMinFee = tx.GetMinFee(1000, false, GMF_RELAY, nSize);
         if (nFees < txMinFee)
-            return error("CTxMemPool::accept() : not enough fees %s, %" PRI64d " < %"PRI64d,
+            return error("CTxMemPool::accept() : not enough fees %s, %" PRI64d " < %" PRI64d,
                          hash.ToString().c_str(),
                          nFees, txMinFee);
 
@@ -3784,7 +3785,7 @@ int64 nLastCoinStakeSearchInterval = 0;
 CBlock* CreateNewBlock(CReserveKey& reservekey, CWallet* pwallet, bool fProofOfStake)
 {
     // Create new block
-    auto_ptr<CBlock> pblock(new CBlock());
+    unique_ptr<CBlock> pblock(new CBlock());
     if (!pblock.get())
         return NULL;
 
@@ -4137,7 +4138,7 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
         unsigned int nTransactionsUpdatedLast = nTransactionsUpdated;
         CBlockIndex* pindexPrev = pindexBest;
 
-        auto_ptr<CBlock> pblock(CreateNewBlock(reservekey, pwallet, fProofOfStake));
+        unique_ptr<CBlock> pblock(CreateNewBlock(reservekey, pwallet, fProofOfStake));
         if (!pblock.get())
             return;
 
